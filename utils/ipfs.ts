@@ -93,3 +93,73 @@ export async function checkIpfsNode(): Promise<boolean> {
     return false;
   }
 }
+
+// ============ IPNS 相关 API ============
+
+export interface IpnsKey {
+  Name: string;
+  Id: string;
+}
+
+/**
+ * 获取所有 IPNS 密钥
+ */
+export async function listKeys(): Promise<IpnsKey[]> {
+  const apiEndpoint = await getApiEndpoint();
+  const response = await fetch(`${apiEndpoint}/key/list`, {
+    method: 'POST',
+  });
+  
+  if (!response.ok) {
+    throw new Error(`获取密钥列表失败: ${response.status}`);
+  }
+  
+  const data = await response.json();
+  return data.Keys || [];
+}
+
+/**
+ * 生成新的 IPNS 密钥
+ * @param keyName 密钥名称
+ */
+export async function generateKey(keyName: string): Promise<IpnsKey> {
+  const apiEndpoint = await getApiEndpoint();
+  const response = await fetch(`${apiEndpoint}/key/gen?arg=${encodeURIComponent(keyName)}&type=ed25519`, {
+    method: 'POST',
+  });
+  
+  if (!response.ok) {
+    throw new Error(`生成密钥失败: ${response.status}`);
+  }
+  
+  return await response.json();
+}
+
+/**
+ * 发布 CID 到 IPNS
+ * @param cid 要发布的 CID
+ * @param keyName 使用的密钥名称（默认为 self）
+ */
+export async function publishToIpns(cid: string, keyName: string = 'self'): Promise<{ Name: string; Value: string }> {
+  const apiEndpoint = await getApiEndpoint();
+  const response = await fetch(`${apiEndpoint}/name/publish?arg=${cid}&key=${encodeURIComponent(keyName)}`, {
+    method: 'POST',
+  });
+  
+  if (!response.ok) {
+    throw new Error(`发布 IPNS 失败: ${response.status}`);
+  }
+  
+  return await response.json();
+}
+
+/**
+ * 获取 IPNS 访问链接
+ * @param ipnsId IPNS ID
+ */
+export async function getIpnsUrl(ipnsId: string): Promise<string> {
+  const gateway = await getGateway();
+  // 将 /ipfs/ 替换为 /ipns/
+  const ipnsGateway = gateway.replace('/ipfs/', '/ipns/');
+  return `${ipnsGateway}${ipnsId}`;
+}

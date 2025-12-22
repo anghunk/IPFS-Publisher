@@ -1,10 +1,17 @@
 # IPFS Publisher
 
-基于 Wxt 构建的自定义模板，引入了一些特性。
+一个简单的浏览器扩展，用于将 Markdown 文章发布到 IPFS 网络。
 
-- 自动构建 Release 包
-- 自动生成更新日志、版本信息等
-- 预设 .github 文件夹，issues 模板等
-- 预设扩展文件夹，配置文件等
+## 功能
 
-需要在github中设置 `ACCESS_TOKEN` 环境变量，并将 `ACCESS_TOKEN` 加入 secrets 中。
+- 编写 Markdown 文章并一键发布到 IPFS
+- 自动转换为带样式的 HTML 页面
+- 管理已发布的文章列表
+- 支持自定义 IPFS 网关和本地节点 API 地址
+- Markdown 实时预览
+
+## 使用
+
+1. 安装 [IPFS Desktop](https://docs.ipfs.tech/install/ipfs-desktop/)
+2. 加载扩展
+3. 在弹窗或后台页编写文章并发布

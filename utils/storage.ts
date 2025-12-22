@@ -116,6 +116,9 @@ export async function clearRecords(): Promise<void> {
 export interface Settings {
   gateway: string;
   apiEndpoint: string;
+  ipnsKeyName?: string;  // 用于文章列表的 IPNS 密钥名称
+  ipnsId?: string;        // IPNS ID
+  ipnsUrl?: string;       // IPNS 访问链接
 }
 
 const SETTINGS_KEY = 'settings';
