@@ -62,6 +62,58 @@
         </el-form>
       </div>
 
+      <div class="setting-section">
+        <h3>IPNS 文章列表</h3>
+        <p class="setting-desc">生成固定的文章列表链接，更新文章后链接不变</p>
+        
+        <el-form label-position="top">
+          <el-form-item label="IPNS 密钥">
+            <div class="key-selector">
+              <el-select 
+                v-model="selectedKey" 
+                placeholder="选择密钥"
+                size="large"
+                style="flex: 1;"
+              >
+                <el-option 
+                  v-for="key in ipnsKeys" 
+                  :key="key.Name" 
+                  :label="key.Name" 
+                  :value="key.Name"
+                />
+              </el-select>
+              <el-button @click="loadKeys" :loading="loadingKeys">刷新</el-button>
+              <el-button type="primary" @click="showCreateKeyDialog = true">新建</el-button>
+            </div>
+            <div class="input-tip">
+              选择或创建一个密钥用于发布文章列表
+            </div>
+          </el-form-item>
+
+          <el-form-item v-if="settings.ipnsUrl">
+            <div class="ipns-url-box">
+              <span class="label">IPNS 链接：</span>
+              <a :href="settings.ipnsUrl" target="_blank" class="ipns-link">{{ settings.ipnsUrl }}</a>
+              <el-button size="small" @click="copyIpnsUrl">复制</el-button>
+            </div>
+          </el-form-item>
+
+          <el-button 
+            type="warning" 
+            size="large" 
+            @click="publishListToIpns" 
+            :loading="publishing"
+            :disabled="!selectedKey"
+            style="width: 100%;"
+          >
+            {{ settings.ipnsUrl ? '更新文章列表页' : '发布文章列表页' }}
+          </el-button>
+          <div class="input-tip" style="text-align: center; margin-top: 12px;">
+            发布后获得固定的 IPNS 链接，文章更新后只需点击「更新」即可
+          </div>
+        </el-form>
+      </div>
+
       <div class="form-actions">
         <el-button @click="resetSettings" size="large">恢复默认</el-button>
         <el-button type="primary" @click="saveSettings" size="large" :loading="saving">
@@ -69,6 +121,20 @@
         </el-button>
       </div>
     </div>
+
+    <!-- 创建密钥对话框 -->
+    <el-dialog v-model="showCreateKeyDialog" title="创建 IPNS 密钥" width="400px">
+      <el-form label-position="top">
+        <el-form-item label="密钥名称">
+          <el-input v-model="newKeyName" placeholder="例如：my-articles" />
+          <div class="input-tip">只能包含字母、数字和连字符</div>
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="showCreateKeyDialog = false">取消</el-button>
+        <el-button type="primary" @click="createKey" :loading="creatingKey">创建</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -79,6 +145,14 @@ import { ElMessage } from 'element-plus';
 interface Settings {
   gateway: string;
   apiEndpoint: string;
+  ipnsKeyName?: string;
+  ipnsId?: string;
+  ipnsUrl?: string;
+}
+
+interface IpnsKey {
+  Name: string;
+  Id: string;
 }
 
 const settings = ref<Settings>({
@@ -88,6 +162,13 @@ const settings = ref<Settings>({
 
 const testing = ref(false);
 const saving = ref(false);
+const loadingKeys = ref(false);
+const publishing = ref(false);
+const creatingKey = ref(false);
+const showCreateKeyDialog = ref(false);
+const newKeyName = ref('');
+const ipnsKeys = ref<IpnsKey[]>([]);
+const selectedKey = ref('');
 
 const gatewayPresets = [
   { name: 'IPFS.io', url: 'https://ipfs.io/ipfs/' },
@@ -99,6 +180,7 @@ const gatewayPresets = [
 
 onMounted(async () => {
   await loadSettings();
+  await loadKeys();
 });
 
 async function loadSettings() {
@@ -106,9 +188,90 @@ async function loadSettings() {
     const response = await chrome.runtime.sendMessage({ action: 'getSettings' });
     if (response.success && response.data) {
       settings.value = { ...settings.value, ...response.data };
+      if (response.data.ipnsKeyName) {
+        selectedKey.value = response.data.ipnsKeyName;
+      }
     }
   } catch (e) {
     console.error('Failed to load settings:', e);
+  }
+}
+
+async function loadKeys() {
+  loadingKeys.value = true;
+  try {
+    const response = await chrome.runtime.sendMessage({ action: 'listKeys' });
+    if (response.success) {
+      ipnsKeys.value = response.data;
+    }
+  } catch (e) {
+    console.error('Failed to load keys:', e);
+  } finally {
+    loadingKeys.value = false;
+  }
+}
+
+async function createKey() {
+  if (!newKeyName.value.trim()) {
+    ElMessage.warning('请输入密钥名称');
+    return;
+  }
+  
+  creatingKey.value = true;
+  try {
+    const response = await chrome.runtime.sendMessage({ 
+      action: 'generateKey', 
+      keyName: newKeyName.value.trim() 
+    });
+    
+    if (response.success) {
+      ElMessage.success('密钥创建成功');
+      selectedKey.value = response.data.Name;
+      showCreateKeyDialog.value = false;
+      newKeyName.value = '';
+      await loadKeys();
+    } else {
+      throw new Error(response.error);
+    }
+  } catch (error: any) {
+    ElMessage.error('创建失败: ' + error.message);
+  } finally {
+    creatingKey.value = false;
+  }
+}
+
+async function publishListToIpns() {
+  if (!selectedKey.value) {
+    ElMessage.warning('请先选择或创建 IPNS 密钥');
+    return;
+  }
+  
+  publishing.value = true;
+  try {
+    const response = await chrome.runtime.sendMessage({ 
+      action: 'publishListToIpns', 
+      keyName: selectedKey.value 
+    });
+    
+    if (response.success) {
+      settings.value.ipnsUrl = response.data.ipnsUrl;
+      settings.value.ipnsId = response.data.ipnsId;
+      settings.value.ipnsKeyName = selectedKey.value;
+      ElMessage.success('IPNS 发布成功！');
+    } else {
+      throw new Error(response.error);
+    }
+  } catch (error: any) {
+    ElMessage.error('发布失败: ' + error.message);
+  } finally {
+    publishing.value = false;
+  }
+}
+
+async function copyIpnsUrl() {
+  if (settings.value.ipnsUrl) {
+    await navigator.clipboard.writeText(settings.value.ipnsUrl);
+    ElMessage.success('链接已复制');
   }
 }
 
@@ -251,6 +414,35 @@ async function resetSettings() {
     &:hover {
       transform: translateY(-1px);
     }
+  }
+}
+
+.key-selector {
+  display: flex;
+  gap: 8px;
+}
+
+.ipns-url-box {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: #fefce8;
+  border-radius: 8px;
+  border: 1px solid @primary;
+  width: 100%;
+  
+  .label {
+    font-size: 13px;
+    color: #6b7280;
+    white-space: nowrap;
+  }
+  
+  .ipns-link {
+    flex: 1;
+    color: @primary-dark;
+    word-break: break-all;
+    font-size: 13px;
   }
 }
 

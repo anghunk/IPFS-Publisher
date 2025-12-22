@@ -332,3 +332,210 @@ function escapeHtml(text: string): string {
   };
   return text.replace(/[&<>"']/g, m => map[m]);
 }
+
+// 列表页样式
+const listPageStyles = `
+:root {
+  --primary: #F5D104;
+  --primary-dark: #D4B503;
+  --bg-dark: #1a1a2e;
+  --text-color: #374151;
+  --text-muted: #6b7280;
+  --border-color: #e5e7eb;
+  --bg-light: #f9fafb;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans SC', sans-serif;
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  min-height: 100vh;
+  color: var(--text-color);
+  line-height: 1.6;
+}
+
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.logo {
+  width: 64px;
+  height: 64px;
+  background: var(--primary);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+  font-size: 32px;
+}
+
+.header h1 {
+  font-size: 28px;
+  color: var(--bg-dark);
+  margin-bottom: 8px;
+}
+
+.header p {
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+.article-list {
+  display: grid;
+  gap: 16px;
+}
+
+.article-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--border-color);
+  transition: all 0.2s;
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+.article-card:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  border-color: var(--primary);
+  transform: translateY(-2px);
+}
+
+.article-card h2 {
+  font-size: 18px;
+  color: var(--bg-dark);
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.article-card .meta {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+}
+
+.article-card .preview {
+  font-size: 14px;
+  color: var(--text-muted);
+  line-height: 1.6;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.empty {
+  text-align: center;
+  padding: 60px 20px;
+  background: #fff;
+  border-radius: 12px;
+  color: var(--text-muted);
+}
+
+.footer {
+  text-align: center;
+  margin-top: 40px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.footer a {
+  color: var(--primary-dark);
+  text-decoration: none;
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 20px 16px;
+  }
+  
+  .header h1 {
+    font-size: 22px;
+  }
+  
+  .article-card {
+    padding: 18px;
+  }
+  
+  .article-card h2 {
+    font-size: 16px;
+  }
+}
+`;
+
+export interface ListPageRecord {
+  id: string;
+  title: string;
+  content: string;
+  cid: string;
+  createdAt: number;
+}
+
+/**
+ * 生成文章列表页 HTML
+ * @param records 文章记录列表
+ * @param gateway IPFS 网关地址
+ */
+export function generateListPage(records: ListPageRecord[], gateway: string): string {
+  const formatDate = (timestamp: number) => {
+    return new Date(timestamp).toLocaleDateString('zh-CN', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  };
+  
+  const truncate = (text: string, length: number) => {
+    return text.length > length ? text.substring(0, length) + '...' : text;
+  };
+  
+  const articleCards = records.length > 0 
+    ? records.map(record => `
+      <a href="${gateway}${record.cid}" target="_blank" class="article-card">
+        <h2>${escapeHtml(record.title)}</h2>
+        <div class="meta">发布于 ${formatDate(record.createdAt)}</div>
+        <p class="preview">${escapeHtml(truncate(record.content, 150))}</p>
+      </a>
+    `).join('')
+    : '<div class="empty">还没有发布任何文章</div>';
+
+  return `<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>文章列表 - IPFS Publisher</title>
+  <style>${listPageStyles}</style>
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <div class="logo">📝</div>
+      <h1>文章列表</h1>
+      <p>共 ${records.length} 篇文章 · 更新于 ${new Date().toLocaleDateString('zh-CN')}</p>
+    </header>
+    <div class="article-list">
+      ${articleCards}
+    </div>
+    <footer class="footer">
+      <p>Powered by <a href="https://ipfs.io" target="_blank">IPFS</a> · Published via IPFS Publisher</p>
+    </footer>
+  </div>
+</body>
+</html>`;
+}
