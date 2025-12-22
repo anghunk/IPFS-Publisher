@@ -10,6 +10,10 @@
 - 支持自定义 IPFS 网关和本地节点 API 地址
 - Markdown 实时预览
 
+待开发
+
+- [ ] 使用 ipns 创建密钥，绑定唯一 url
+
 ## 使用
 
 1. 安装 [IPFS Desktop](https://docs.ipfs.tech/install/ipfs-desktop/)
