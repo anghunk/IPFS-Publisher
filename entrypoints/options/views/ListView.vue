@@ -42,13 +42,11 @@
                 <el-icon><Edit /></el-icon>
               </el-button>
             </el-tooltip>
-            <el-popconfirm title="确定删除这篇文章？" @confirm="handleDelete(record.id)">
+            <el-popconfirm title="确定删除这篇文章？" @confirm="handleDelete(record.id)" width="200">
               <template #reference>
-                <el-tooltip content="删除">
-                  <el-button size="small" circle type="danger">
-                    <el-icon><Delete /></el-icon>
-                  </el-button>
-                </el-tooltip>
+                <el-button size="small" circle type="danger">
+                  <el-icon><Delete /></el-icon>
+                </el-button>
               </template>
             </el-popconfirm>
           </div>

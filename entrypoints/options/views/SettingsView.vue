@@ -62,7 +62,7 @@
         </el-form>
       </div>
 
-      <div class="setting-section">
+      <!-- <div class="setting-section">
         <h3>IPNS 文章列表</h3>
         <p class="setting-desc">生成固定的文章列表链接，更新文章后链接不变</p>
         
@@ -112,7 +112,7 @@
             发布后获得固定的 IPNS 链接，文章更新后只需点击「更新」即可
           </div>
         </el-form>
-      </div>
+      </div> -->
 
       <div class="form-actions">
         <el-button @click="resetSettings" size="large">恢复默认</el-button>
