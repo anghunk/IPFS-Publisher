@@ -30,6 +30,12 @@ const router = createRouter({
       name: 'preview',
       component: () => import('../views/PreviewView.vue'),
       meta: { title: '文章预览' }
+    },
+    {
+      path: '/settings',
+      name: 'settings',
+      component: () => import('../views/SettingsView.vue'),
+      meta: { title: '设置' }
     }
   ]
 });

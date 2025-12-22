@@ -43,6 +43,11 @@ browserAPI.runtime.onMessage.addListener((request: Message, sender, sendResponse
         // 生成带样式的 HTML 页面
         const htmlContent = generateHtmlPage(title, content, Date.now());
         const filename = `${title.replace(/[^a-zA-Z0-9\u4e00-\u9fa5]/g, '_')}.html`;
+        
+        // 调试日志
+        console.log('[IPFS Publisher] 发布操作 - 生成 HTML');
+        console.log('[IPFS Publisher] HTML 内容长度:', htmlContent.length);
+        console.log('[IPFS Publisher] 是否包含 DOCTYPE:', htmlContent.includes('<!DOCTYPE html>'));
 
         const result = await uploadToIpfs(htmlContent, filename, 'text/html');
         

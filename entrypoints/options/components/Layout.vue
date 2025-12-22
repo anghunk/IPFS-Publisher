@@ -18,6 +18,10 @@
           <el-icon><List /></el-icon>
           <span>发布列表</span>
         </router-link>
+        <router-link to="/settings" class="nav-item" active-class="active">
+          <el-icon><Setting /></el-icon>
+          <span>设置</span>
+        </router-link>
       </nav>
       
       <div class="sidebar-footer">
@@ -39,7 +43,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, provide } from 'vue';
-import { Edit, List } from '@element-plus/icons-vue';
+import { Edit, List, Setting } from '@element-plus/icons-vue';
 
 const nodeStatus = ref<'connected' | 'disconnected'>('disconnected');
 
