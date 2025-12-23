@@ -4,9 +4,9 @@
 
 一个简单的浏览器扩展，用于将 Markdown 文章发布到 IPFS 网络。
 
-![](./public/image.zh.jpg)
+[Chrome Web Store](https://chromewebstore.google.com/detail/boadlmdjnofefcpehbdjjmbggghejiga)
 
-商店目前在审核中，beta 版请下载 releases。
+![](./public/image.zh.jpg)
 
 ## 功能
 

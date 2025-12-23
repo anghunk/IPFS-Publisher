@@ -4,9 +4,9 @@
 
 A simple browser extension to publish Markdown articles to IPFS network.
 
-![](./public/image.jpg)
+[Chrome Web Store](https://chromewebstore.google.com/detail/boadlmdjnofefcpehbdjjmbggghejiga)
 
-Currently under review in the store, please download beta version from releases.
+![](./public/image.jpg)
 
 ## Features
 
