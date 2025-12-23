@@ -1,25 +1,55 @@
 # IPFS Publisher
 
-一个简单的浏览器扩展，用于将 Markdown 文章发布到 IPFS 网络。
+[中文文档](./README.zh-CN.md) / [English document](./README.md)
+
+A simple browser extension to publish Markdown articles to IPFS network.
 
 ![](./public/image.jpg)
 
-商店目前在审核中，beta 版请下载 releases.
+Currently under review in the store, please download beta version from releases.
 
-## 功能
+## Features
 
-- 编写 Markdown 内容并一键发布到 IPFS
-- 自动转换为带样式的 HTML 页面
-- 管理已发布的文章列表
-- 支持自定义 IPFS 网关和本地节点 API 地址
-- Markdown 实时预览
+- Write Markdown content and publish to IPFS with one click
+- Automatically convert to styled HTML pages
+- Manage published article list
+- Custom IPFS gateway and local node API address support
+- Real-time Markdown preview
+- Multi-language support (Chinese/English), follows browser language by default
 
-待开发
+### Roadmap
 
-- [ ] 使用 IPND 创建密钥，绑定唯一 URL
+- [ ] Create keys using IPNS, bind to unique URL
 
-## 使用
+## Usage
 
-1. 安装 [IPFS Desktop](https://docs.ipfs.tech/install/ipfs-desktop/)
-2. 加载扩展
-3. 在弹窗或后台页编写文章并发布
+1. Install [IPFS Desktop](https://docs.ipfs.tech/install/ipfs-desktop/)
+2. Load the extension
+3. Write and publish articles in the popup or options page
+
+## Development
+
+```bash
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
+
+# Build for production
+npm run build
+
+# Package for release
+npm run zip
+```
+
+## Tech Stack
+
+- Vue 3 + TypeScript
+- Element Plus
+- WXT (Browser Extension Framework)
+- vue-i18n (Internationalization)
+
+## License
+
+MIT
