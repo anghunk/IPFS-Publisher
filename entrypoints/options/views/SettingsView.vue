@@ -1,34 +1,34 @@
 <template>
   <div class="settings-view">
     <div class="page-header">
-      <h2>设置</h2>
-      <p class="subtitle">配置 IPFS 发布相关选项</p>
+      <h2>{{ $t('settings.title') }}</h2>
+      <p class="subtitle">{{ $t('settings.subtitle') }}</p>
     </div>
 
     <div class="settings-card">
       <div class="setting-section">
-        <h3>IPFS 网关设置</h3>
-        <p class="setting-desc">设置用于在线访问 IPFS 内容的网关地址</p>
+        <h3>{{ $t('settings.gatewaySection') }}</h3>
+        <p class="setting-desc">{{ $t('settings.gatewayDesc') }}</p>
         
         <el-form label-position="top">
-          <el-form-item label="网关地址">
+          <el-form-item :label="$t('settings.gatewayLabel')">
             <el-input 
               v-model="settings.gateway" 
-              placeholder="https://ipfs.io/ipfs/"
+              :placeholder="$t('settings.gatewayPlaceholder')"
               size="large"
             >
               <template #append>
                 <el-button @click="testGateway" :loading="testing">
-                  测试连接
+                  {{ $t('settings.testConnection') }}
                 </el-button>
               </template>
             </el-input>
             <div class="input-tip">
-              示例格式：https://ipfs.io/ipfs/ 或 https://dweb.link/ipfs/
+              {{ $t('settings.gatewayExample') }}
             </div>
           </el-form-item>
 
-          <el-form-item label="常用网关">
+          <el-form-item :label="$t('settings.commonGateways')">
             <div class="gateway-presets">
               <el-tag 
                 v-for="preset in gatewayPresets" 
@@ -45,19 +45,35 @@
       </div>
 
       <div class="setting-section">
-        <h3>本地节点设置</h3>
-        <p class="setting-desc">配置本地 IPFS 节点 API 地址</p>
+        <h3>{{ $t('settings.nodeSection') }}</h3>
+        <p class="setting-desc">{{ $t('settings.nodeDesc') }}</p>
         
         <el-form label-position="top">
-          <el-form-item label="API 地址">
+          <el-form-item :label="$t('settings.apiLabel')">
             <el-input 
               v-model="settings.apiEndpoint" 
-              placeholder="http://127.0.0.1:5001"
+              :placeholder="$t('settings.apiPlaceholder')"
               size="large"
             />
             <div class="input-tip">
-              默认为 IPFS Desktop 的本地 API 地址
+              {{ $t('settings.apiTip') }}
             </div>
+          </el-form-item>
+        </el-form>
+      </div>
+
+      <!-- 语言设置 -->
+      <div class="setting-section">
+        <h3>{{ $t('settings.languageSection') }}</h3>
+        <p class="setting-desc">{{ $t('settings.languageDesc') }}</p>
+        
+        <el-form label-position="top">
+          <el-form-item :label="$t('settings.languageLabel')">
+            <el-select v-model="language" size="large" @change="handleLanguageChange">
+              <el-option value="auto" :label="$t('settings.languageAuto')" />
+              <el-option value="zh" :label="$t('settings.languageChinese')" />
+              <el-option value="en" :label="$t('settings.languageEnglish')" />
+            </el-select>
           </el-form-item>
         </el-form>
       </div>
@@ -115,9 +131,9 @@
       </div> -->
 
       <div class="form-actions">
-        <el-button @click="resetSettings" size="large">恢复默认</el-button>
+        <el-button @click="resetSettings" size="large">{{ $t('settings.resetDefaults') }}</el-button>
         <el-button type="primary" @click="saveSettings" size="large" :loading="saving">
-          保存设置
+          {{ $t('settings.saveSettings') }}
         </el-button>
       </div>
     </div>
@@ -141,6 +157,10 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { ElMessage } from 'element-plus';
+import { useI18n } from 'vue-i18n';
+import { getBrowserLanguage } from '../../../utils/i18n';
+
+const { t, locale } = useI18n();
 
 interface Settings {
   gateway: string;
@@ -169,6 +189,7 @@ const showCreateKeyDialog = ref(false);
 const newKeyName = ref('');
 const ipnsKeys = ref<IpnsKey[]>([]);
 const selectedKey = ref('');
+const language = ref('auto');
 
 const gatewayPresets = [
   { name: 'IPFS.io', url: 'https://ipfs.io/ipfs/' },
@@ -180,6 +201,7 @@ const gatewayPresets = [
 
 onMounted(async () => {
   await loadSettings();
+  await loadLanguage();
   await loadKeys();
 });
 
@@ -194,6 +216,26 @@ async function loadSettings() {
     }
   } catch (e) {
     console.error('Failed to load settings:', e);
+  }
+}
+
+async function loadLanguage() {
+  try {
+    const result = await chrome.storage.local.get('language');
+    language.value = result.language || 'auto';
+  } catch (e) {
+    console.error('Failed to load language:', e);
+  }
+}
+
+async function handleLanguageChange(newLang: string) {
+  try {
+    await chrome.storage.local.set({ language: newLang });
+    const actualLang = newLang === 'auto' ? getBrowserLanguage() : newLang;
+    locale.value = actualLang;
+    ElMessage.success(t('settings.settingsSaved'));
+  } catch (e) {
+    console.error('Failed to save language:', e);
   }
 }
 
@@ -281,7 +323,7 @@ function selectPreset(url: string) {
 
 async function testGateway() {
   if (!settings.value.gateway) {
-    ElMessage.warning('请输入网关地址');
+    ElMessage.warning(t('settings.enterGateway'));
     return;
   }
   
@@ -296,9 +338,9 @@ async function testGateway() {
       mode: 'no-cors'
     });
     
-    ElMessage.success('网关连接正常');
+    ElMessage.success(t('settings.gatewayConnected'));
   } catch (error) {
-    ElMessage.warning('网关可能不可用，但仍可保存');
+    ElMessage.warning(t('settings.gatewayUnavailable'));
   } finally {
     testing.value = false;
   }
@@ -318,12 +360,12 @@ async function saveSettings() {
     });
     
     if (response.success) {
-      ElMessage.success('设置已保存');
+      ElMessage.success(t('settings.settingsSaved'));
     } else {
       throw new Error(response.error);
     }
   } catch (error: any) {
-    ElMessage.error('保存失败: ' + error.message);
+    ElMessage.error(t('settings.saveFailed') + ': ' + error.message);
   } finally {
     saving.value = false;
   }

@@ -2,15 +2,15 @@
   <div class="list-view">
     <div class="page-header">
       <div>
-        <h2>发布列表</h2>
-        <p class="subtitle">共 {{ records.length }} 篇文章</p>
+        <h2>{{ $t('list.title') }}</h2>
+        <p class="subtitle">{{ $t('list.totalArticles', { count: records.length }) }}</p>
       </div>
-      <el-button type="primary" @click="goToEditor" size="large"> 新建文章 </el-button>
+      <el-button type="primary" @click="goToEditor" size="large"> {{ $t('list.newArticle') }} </el-button>
     </div>
 
     <div v-if="records.length === 0" class="empty-state">
-      <el-empty description="还没有发布过文章">
-        <el-button type="primary" @click="goToEditor">立即发布</el-button>
+      <el-empty :description="$t('list.emptyTitle')">
+        <el-button type="primary" @click="goToEditor">{{ $t('list.publishNow') }}</el-button>
       </el-empty>
     </div>
 
@@ -27,22 +27,22 @@
             {{ record.cid.substring(0, 16) }}...
           </a>
           <div class="card-actions">
-            <el-tooltip content="预览">
+            <el-tooltip :content="$t('list.preview')">
               <el-button size="small" circle type="success" @click="previewRecord(record)">
                 <el-icon><View /></el-icon>
               </el-button>
             </el-tooltip>
-            <el-tooltip content="复制链接">
+            <el-tooltip :content="$t('list.copyLink')">
               <el-button size="small" circle @click="copyLink(getRecordUrl(record))">
                 <el-icon><DocumentCopy /></el-icon>
               </el-button>
             </el-tooltip>
-            <el-tooltip content="编辑">
+            <el-tooltip :content="$t('common.edit')">
               <el-button size="small" circle type="primary" @click="editRecord(record)">
                 <el-icon><Edit /></el-icon>
               </el-button>
             </el-tooltip>
-            <el-popconfirm title="确定删除这篇文章？" @confirm="handleDelete(record.id)" width="200">
+            <el-popconfirm :title="$t('list.deleteConfirm')" @confirm="handleDelete(record.id)" width="200">
               <template #reference>
                 <el-button size="small" circle type="danger">
                   <el-icon><Delete /></el-icon>
@@ -61,7 +61,10 @@ import { ref, onMounted, computed } from "vue";
 import { useRouter } from "vue-router";
 import { Plus, Link, DocumentCopy, Edit, Delete, View } from "@element-plus/icons-vue";
 import { ElMessage } from "element-plus";
+import { useI18n } from 'vue-i18n';
 import type { PublishRecord } from "../../../utils/storage";
+
+const { t } = useI18n();
 
 const emit = defineEmits(["update-count"]);
 const router = useRouter();
@@ -118,16 +121,16 @@ async function handleDelete(id: string) {
     const response = await chrome.runtime.sendMessage({ action: "deleteRecord", id });
     if (response.success) {
       await loadRecords();
-      ElMessage.success("删除成功");
+      ElMessage.success(t('list.deleteSuccess'));
     }
   } catch (e) {
-    ElMessage.error("删除失败");
+    ElMessage.error(t('list.deleteFailed'));
   }
 }
 
 async function copyLink(url: string) {
   await navigator.clipboard.writeText(url);
-  ElMessage.success("链接已复制");
+  ElMessage.success(t('editor.linkCopied'));
 }
 
 function formatDate(timestamp: number): string {

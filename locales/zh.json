@@ -1,0 +1,93 @@
+{
+  "common": {
+    "confirm": "确定",
+    "cancel": "取消",
+    "save": "保存",
+    "edit": "编辑",
+    "delete": "删除",
+    "copy": "复制",
+    "copied": "已复制",
+    "loading": "加载中...",
+    "success": "成功",
+    "error": "错误",
+    "back": "返回"
+  },
+  "nav": {
+    "editor": "文章发布",
+    "list": "发布列表",
+    "settings": "设置",
+    "ipfsConnected": "IPFS 已连接",
+    "ipfsDisconnected": "IPFS 未连接"
+  },
+  "popup": {
+    "title": "IPFS Publisher",
+    "description": "一键发布 Markdown 内容到 IPFS 的浏览器扩展",
+    "openPublisher": "打开发布器"
+  },
+  "editor": {
+    "title": "文章发布",
+    "editTitle": "编辑文章",
+    "subtitle": "编写 Markdown 内容并发布到 IPFS 网络",
+    "articleTitle": "文章标题",
+    "articleContent": "文章内容",
+    "titlePlaceholder": "输入文章标题",
+    "contentPlaceholder": "支持 Markdown 格式...",
+    "publishing": "发布中...",
+    "publish": "发布到 IPFS",
+    "republish": "重新发布",
+    "cancelEdit": "取消编辑",
+    "publishSuccess": "发布成功!",
+    "publishFailed": "发布失败",
+    "cid": "CID",
+    "visitLink": "访问链接",
+    "linkCopied": "链接已复制"
+  },
+  "list": {
+    "title": "发布列表",
+    "totalArticles": "共 {count} 篇文章",
+    "newArticle": "新建文章",
+    "emptyTitle": "还没有发布过文章",
+    "publishNow": "立即发布",
+    "preview": "预览",
+    "copyLink": "复制链接",
+    "deleteConfirm": "确定删除这篇文章？",
+    "deleteSuccess": "删除成功",
+    "deleteFailed": "删除失败"
+  },
+  "preview": {
+    "backToList": "返回列表",
+    "copyLink": "复制链接",
+    "visitIpfs": "访问 IPFS",
+    "articleNotFound": "文章不存在",
+    "linkCopied": "链接已复制"
+  },
+  "settings": {
+    "title": "设置",
+    "subtitle": "配置 IPFS 发布相关选项",
+    "gatewaySection": "IPFS 网关设置",
+    "gatewayDesc": "设置用于在线访问 IPFS 内容的网关地址",
+    "gatewayLabel": "网关地址",
+    "gatewayPlaceholder": "https://ipfs.io/ipfs/",
+    "testConnection": "测试连接",
+    "gatewayExample": "示例格式：https://ipfs.io/ipfs/ 或 https://dweb.link/ipfs/",
+    "commonGateways": "常用网关",
+    "gatewayConnected": "网关连接正常",
+    "gatewayUnavailable": "网关可能不可用，但仍可保存",
+    "nodeSection": "本地节点设置",
+    "nodeDesc": "配置本地 IPFS 节点 API 地址",
+    "apiLabel": "API 地址",
+    "apiPlaceholder": "http://127.0.0.1:5001",
+    "apiTip": "默认为 IPFS Desktop 的本地 API 地址",
+    "languageSection": "语言设置",
+    "languageDesc": "选择界面显示语言",
+    "languageLabel": "界面语言",
+    "languageAuto": "跟随系统",
+    "languageChinese": "简体中文",
+    "languageEnglish": "English",
+    "resetDefaults": "恢复默认",
+    "saveSettings": "保存设置",
+    "settingsSaved": "设置已保存",
+    "saveFailed": "保存失败",
+    "enterGateway": "请输入网关地址"
+  }
+}

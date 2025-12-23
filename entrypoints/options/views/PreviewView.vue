@@ -4,17 +4,17 @@
       <div class="header-left">
         <el-button @click="goBack" size="large">
           <el-icon><ArrowLeft /></el-icon>
-          返回列表
+          {{ $t('preview.backToList') }}
         </el-button>
       </div>
       <div class="header-actions">
         <el-button @click="copyLink" size="large">
           <el-icon><DocumentCopy /></el-icon>
-          复制链接
+          {{ $t('preview.copyLink') }}
         </el-button>
         <el-button type="primary" @click="openLink" size="large">
           <el-icon><Link /></el-icon>
-          访问 IPFS
+          {{ $t('preview.visitIpfs') }}
         </el-button>
       </div>
     </div>
@@ -43,8 +43,8 @@
     </div>
 
     <div v-else class="empty-state">
-      <el-empty description="文章不存在">
-        <el-button type="primary" @click="goBack">返回列表</el-button>
+      <el-empty :description="$t('preview.articleNotFound')">
+        <el-button type="primary" @click="goBack">{{ $t('preview.backToList') }}</el-button>
       </el-empty>
     </div>
   </div>
@@ -55,8 +55,11 @@ import { ref, computed, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { ArrowLeft, Link, DocumentCopy, Calendar } from '@element-plus/icons-vue';
 import { ElMessage } from 'element-plus';
+import { useI18n } from 'vue-i18n';
 import { marked } from 'marked';
 import type { PublishRecord } from '../../../utils/storage';
+
+const { t } = useI18n();
 
 const route = useRoute();
 const router = useRouter();
@@ -100,7 +103,7 @@ function openLink() {
 async function copyLink() {
   if (record.value) {
     await navigator.clipboard.writeText(record.value.url);
-    ElMessage.success('链接已复制');
+    ElMessage.success(t('preview.linkCopied'));
   }
 }
 

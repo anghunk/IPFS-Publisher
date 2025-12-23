@@ -12,22 +12,22 @@
       <nav class="nav-menu">
         <router-link to="/editor" class="nav-item" active-class="active">
           <el-icon><Edit /></el-icon>
-          <span>文章发布</span>
+          <span>{{ $t('nav.editor') }}</span>
         </router-link>
         <router-link to="/list" class="nav-item" active-class="active">
           <el-icon><List /></el-icon>
-          <span>发布列表</span>
+          <span>{{ $t('nav.list') }}</span>
         </router-link>
         <router-link to="/settings" class="nav-item" active-class="active">
           <el-icon><Setting /></el-icon>
-          <span>设置</span>
+          <span>{{ $t('nav.settings') }}</span>
         </router-link>
       </nav>
       
       <div class="sidebar-footer">
         <div class="status-indicator" :class="nodeStatus">
           <span class="dot"></span>
-          <span>{{ nodeStatus === 'connected' ? 'IPFS 已连接' : 'IPFS 未连接' }}</span>
+          <span>{{ nodeStatus === 'connected' ? $t('nav.ipfsConnected') : $t('nav.ipfsDisconnected') }}</span>
         </div>
       </div>
     </aside>

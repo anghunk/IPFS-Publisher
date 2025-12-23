@@ -3,16 +3,16 @@
     <div class="logo">
       <img src="/icon/128.png" alt="IPFS Publisher" />
     </div>
-    <h2>IPFS Publisher</h2>
-    <p class="desc">一键发布 Markdown 内容到 IPFS 的浏览器扩展</p>
+    <h2>{{ $t('popup.title') }}</h2>
+    <p class="desc">{{ $t('popup.description') }}</p>
 
     <el-button type="primary" @click="openPublisher" class="open-btn">
-      打开发布器
+      {{ $t('popup.openPublisher') }}
     </el-button>
 
     <div class="status-indicator" :class="nodeStatus">
       <span class="dot"></span>
-      <span>{{ nodeStatus === 'connected' ? 'IPFS 已连接' : 'IPFS 未连接' }}</span>
+      <span>{{ nodeStatus === 'connected' ? $t('nav.ipfsConnected') : $t('nav.ipfsDisconnected') }}</span>
     </div>
   </div>
 </template>

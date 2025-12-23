@@ -1,34 +1,34 @@
 <template>
   <div class="editor-view">
     <div class="page-header">
-      <h2>{{ isEditing ? '编辑文章' : '文章发布' }}</h2>
-      <p class="subtitle">编写 Markdown 内容并发布到 IPFS 网络</p>
+      <h2>{{ isEditing ? $t('editor.editTitle') : $t('editor.title') }}</h2>
+      <p class="subtitle">{{ $t('editor.subtitle') }}</p>
     </div>
     
     <div class="editor-card">
       <el-form :model="form" label-position="top">
-        <el-form-item label="文章标题">
+        <el-form-item :label="$t('editor.articleTitle')">
           <el-input 
             v-model="form.title" 
-            placeholder="输入文章标题"
+            :placeholder="$t('editor.titlePlaceholder')"
             :disabled="publishing"
             size="large"
           />
         </el-form-item>
 
-        <el-form-item label="文章内容">
+        <el-form-item :label="$t('editor.articleContent')">
           <el-input
             v-model="form.content"
             type="textarea"
             :rows="16"
-            placeholder="支持 Markdown 格式..."
+            :placeholder="$t('editor.contentPlaceholder')"
             :disabled="publishing"
           />
         </el-form-item>
       </el-form>
       
       <div class="form-actions">
-        <el-button v-if="isEditing" @click="cancelEdit" size="large">取消编辑</el-button>
+        <el-button v-if="isEditing" @click="cancelEdit" size="large">{{ $t('editor.cancelEdit') }}</el-button>
         <el-button 
           type="primary" 
           :loading="publishing" 
@@ -37,7 +37,7 @@
           size="large"
           class="publish-btn"
         >
-          {{ publishing ? '发布中...' : (isEditing ? '重新发布' : '发布到 IPFS') }}
+          {{ publishing ? $t('editor.publishing') : (isEditing ? $t('editor.republish') : $t('editor.publish')) }}
         </el-button>
       </div>
     </div>
@@ -50,24 +50,24 @@
         :closable="false"
         show-icon
       >
-        <template #title>发布成功!</template>
+        <template #title>{{ $t('editor.publishSuccess') }}</template>
         <template #default>
           <div class="result-content">
-            <p><strong>CID:</strong> {{ publishResult.data.cid }}</p>
+            <p><strong>{{ $t('editor.cid') }}:</strong> {{ publishResult.data.cid }}</p>
             <div class="result-actions">
               <el-link :href="publishResult.data.url" target="_blank" type="primary">
-                <el-icon><Link /></el-icon> 访问链接
+                <el-icon><Link /></el-icon> {{ $t('editor.visitLink') }}
               </el-link>
               <el-button size="small" @click="copyLink(publishResult.data.url)">
                 <el-icon><DocumentCopy /></el-icon>
-                {{ copied ? '已复制' : '复制' }}
+                {{ copied ? $t('common.copied') : $t('common.copy') }}
               </el-button>
             </div>
           </div>
         </template>
       </el-alert>
       <el-alert v-else type="error" :closable="false" show-icon>
-        <template #title>发布失败</template>
+        <template #title>{{ $t('editor.publishFailed') }}</template>
         <template #default>{{ publishResult.error }}</template>
       </el-alert>
     </div>
@@ -79,7 +79,10 @@ import { ref, computed, onMounted, inject, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { Upload, Link, DocumentCopy } from '@element-plus/icons-vue';
 import { ElMessage } from 'element-plus';
+import { useI18n } from 'vue-i18n';
 import type { PublishRecord } from '../../../utils/storage';
+
+const { t } = useI18n();
 
 const props = defineProps<{
   nodeStatus: 'connected' | 'disconnected';
@@ -176,7 +179,7 @@ async function handlePublish() {
         emit('update-count', recordsResponse.data.length);
       }
       
-      ElMessage.success('发布成功!');
+      ElMessage.success(t('editor.publishSuccess'));
       
       // 跳转到列表页
       router.push('/list');
@@ -191,7 +194,7 @@ async function handlePublish() {
 async function copyLink(url: string) {
   await navigator.clipboard.writeText(url);
   copied.value = true;
-  ElMessage.success('链接已复制');
+  ElMessage.success(t('editor.linkCopied'));
   setTimeout(() => { copied.value = false; }, 2000);
 }
 </script>
