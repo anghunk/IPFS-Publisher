@@ -15,6 +15,7 @@
   "nav": {
     "editor": "Publish",
     "list": "Articles",
+    "topics": "Topics",
     "settings": "Settings",
     "ipfsConnected": "IPFS Connected",
     "ipfsDisconnected": "IPFS Disconnected",
@@ -115,5 +116,19 @@
     "step4Title": "Verify Connection",
     "step4Desc": "After restarting IPFS Desktop, click the button below to verify if the connection is successful.",
     "recheck": "Recheck"
+  },
+  "topics": {
+    "title": "Topic Management",
+    "subtitle": "Create and manage article topic lists, each topic can be published to IPNS independently",
+    "createTopic": "Create Topic",
+    "createFirst": "Create First Topic",
+    "emptyTitle": "No topics created yet",
+    "topicName": "Topic Name",
+    "topicDesc": "Topic Description",
+    "author": "Author",
+    "manageArticles": "Manage Articles",
+    "publishToIpns": "Publish to IPNS",
+    "updatePublish": "Update Publish",
+    "publishSuccess": "Topic published successfully"
   }
 }

@@ -5,11 +5,11 @@
       <div class="banner-content">
         <div class="banner-icon">📌</div>
         <div class="banner-text">
-          <span class="banner-title">是否需要生成固定的文章列表链接？</span>
-          <span class="banner-desc">发布到 IPNS，更新文章后链接不变</span>
+          <span class="banner-title">是否需要创建文章话题列表？</span>
+          <span class="banner-desc">创建话题并发布到 IPNS，更新文章后链接不变</span>
         </div>
       </div>
-      <el-button type="warning" size="small" @click="goToIpnsSetting">前往设置</el-button>
+      <el-button type="warning" size="small" @click="goToTopics">前往话题管理</el-button>
       <el-button text size="small" @click="dismissBanner" class="dismiss-btn"
         >不再提示</el-button
       >
@@ -91,8 +91,12 @@
         
         <p class="card-content">{{ truncate(record.content, 120) }}</p>
         <div class="card-footer">
-          <!-- 已发布：显示 CID 链接 -->
-          <a v-if="record.cid && record.status === 'published'" :href="getRecordUrl(record)" target="_blank" class="cid-link">
+          <!-- 已发布：优先显示永久链接，否则显示 CID 链接 -->
+          <a v-if="record.status === 'published' && record.ipnsUrl" :href="record.ipnsUrl" target="_blank" class="cid-link permanent-link">
+            <el-icon><Link /></el-icon>
+            永久链接
+          </a>
+          <a v-else-if="record.cid && record.status === 'published'" :href="getRecordUrl(record)" target="_blank" class="cid-link">
             <el-icon><Link /></el-icon>
             {{ record.cid.substring(0, 16) }}...
           </a>
@@ -126,8 +130,8 @@
                 <el-icon><View /></el-icon>
               </el-button>
             </el-tooltip>
-            <el-tooltip v-if="record.cid" :content="$t('list.copyLink')">
-              <el-button size="small" circle @click="copyLink(getRecordUrl(record))">
+            <el-tooltip v-if="record.status === 'published'" :content="record.ipnsUrl ? '复制永久链接' : $t('list.copyLink')">
+              <el-button size="small" circle @click="copyLink(record.ipnsUrl || getRecordUrl(record))">
                 <el-icon><DocumentCopy /></el-icon>
               </el-button>
             </el-tooltip>
@@ -230,8 +234,8 @@ function goToEditor() {
   router.push("/editor");
 }
 
-function goToIpnsSetting() {
-  router.push("/settings?section=ipns");
+function goToTopics() {
+  router.push("/topics");
 }
 
 async function dismissBanner() {
@@ -301,6 +305,9 @@ function getStatusText(status: string): string {
 
 // 发布单篇文章到 IPFS
 async function publishSingleArticle(record: PublishRecord) {
+  // 检查是否是重新发布（之前已有 ipnsUrl）
+  const isRepublish = !!record.ipnsUrl;
+  
   publishingArticle.value = record.id;
   try {
     const response = await chrome.runtime.sendMessage({
@@ -311,10 +318,18 @@ async function publishSingleArticle(record: PublishRecord) {
     if (response.success) {
       // 重新加载记录
       await loadRecords();
-      // 检查是否成功生成永久链接
-      const record = records.value.find(r => r.id === response.data.record.id);
+      
       if (response.data.ipnsUrl) {
-        ElMessage.success("文章发布成功，已生成永久链接！");
+        if (isRepublish) {
+          // 重新发布，提示 IPNS 传播延迟
+          ElMessage({
+            type: 'success',
+            message: '文章已更新发布！永久链接内容将在约 5 分钟后更新（IPNS 网络传播需要时间）',
+            duration: 5000,
+          });
+        } else {
+          ElMessage.success("文章发布成功，已生成永久链接！");
+        }
       } else {
         ElMessage.success("文章发布成功！");
       }
@@ -333,7 +348,11 @@ async function publishSingleArticle(record: PublishRecord) {
 async function publishAllDrafts() {
   publishingAll.value = true;
   const total = draftCount.value;
-  let current = 0;
+  
+  // 检查是否有重新发布的文章
+  const hasRepublish = records.value.some(r => 
+    (r.status === 'draft' || r.status === 'failed') && r.ipnsUrl
+  );
   
   try {
     publishProgress.value = `0/${total}`;
@@ -348,6 +367,13 @@ async function publishAllDrafts() {
       
       if (failed > 0) {
         ElMessage.warning(`发布完成：${published} 篇成功，${failed} 篇失败`);
+      } else if (hasRepublish) {
+        // 有重新发布的文章，提示 IPNS 传播延迟
+        ElMessage({
+          type: 'success',
+          message: `成功发布 ${published} 篇文章！永久链接内容将在约 5 分钟后更新`,
+          duration: 5000,
+        });
       } else {
         ElMessage.success(`成功发布 ${published} 篇文章！`);
       }
@@ -584,6 +610,11 @@ async function publishAllDrafts() {
     align-items: center;
     padding-top: 12px;
     border-top: 1px solid #f3f4f6;
+
+    .permanent-link {
+      color: @primary-dark;
+      font-weight: 500;
+    }
 
     .cid-link {
       display: flex;

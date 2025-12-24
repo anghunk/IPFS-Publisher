@@ -18,6 +18,10 @@
           <el-icon><List /></el-icon>
           <span>{{ $t('nav.list') }}</span>
         </router-link>
+        <router-link to="/topics" class="nav-item" active-class="active">
+          <el-icon><Collection /></el-icon>
+          <span>{{ $t('nav.topics') }}</span>
+        </router-link>
         <router-link to="/settings" class="nav-item" active-class="active">
           <el-icon><Setting /></el-icon>
           <span>{{ $t('nav.settings') }}</span>
@@ -46,12 +50,17 @@
 
 <script setup lang="ts">
 import { ref, onMounted, provide } from 'vue';
-import { Edit, List, Setting } from '@element-plus/icons-vue';
+import { Edit, List, Setting, Collection } from '@element-plus/icons-vue';
 
 const nodeStatus = ref<'connected' | 'disconnected'>('disconnected');
 
 // 提供给子组件使用
 provide('nodeStatus', nodeStatus);
+
+// 子组件更新计数时的回调（当前未使用，但保留接口）
+function updateCount(count: number) {
+  // 由子组件触发，可用于未来扩展
+}
 
 onMounted(async () => {
   await checkNode();

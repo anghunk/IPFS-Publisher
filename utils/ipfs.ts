@@ -163,7 +163,16 @@ export async function publishToIpns(cid: string, keyName: string = 'self'): Prom
  */
 export async function getIpnsUrl(ipnsId: string): Promise<string> {
 	const gateway = await getGateway();
-	// 将 /ipfs/ 替换为 /ipns/
-	const ipnsGateway = gateway.replace('/ipfs/', '/ipns/');
-	return `${ipnsGateway}${ipnsId}`;
+	
+	// 处理各种 gateway 格式
+	// 如: https://ipfs.io/ipfs/ -> https://ipfs.io/ipns/
+	// 如: https://gateway.pinata.cloud/ipfs/ -> https://gateway.pinata.cloud/ipns/
+	// 如: https://dweb.link/ipfs/ -> https://dweb.link/ipns/
+	if (gateway.includes('/ipfs/')) {
+		return gateway.replace('/ipfs/', '/ipns/') + ipnsId;
+	}
+	
+	// 如果 gateway 以 / 结尾，去掉尾部后添加 /ipns/
+	const baseUrl = gateway.replace(/\/ipfs\/?$/, '').replace(/\/$/, '');
+	return `${baseUrl}/ipns/${ipnsId}`;
 }

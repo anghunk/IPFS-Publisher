@@ -32,31 +32,24 @@
           {{ $t("common.cancel") }}
         </el-button>
         <el-button
-          type="primary"
           :loading="saving"
           :disabled="!canSave"
-          @click="handleSave"
+          @click="handleSaveDraft"
           size="large"
-          class="save-btn"
         >
-          {{ saving ? "保存中..." : "保存文章" }}
+          {{ saving ? "保存中..." : "保存草稿" }}
+        </el-button>
+        <el-button
+          type="primary"
+          :loading="publishing"
+          :disabled="!canSave"
+          @click="handlePublish"
+          size="large"
+          class="publish-btn"
+        >
+          {{ publishing ? "发布中..." : "直接发布" }}
         </el-button>
       </div>
-    </div>
-
-    <!-- 保存成功提示 -->
-    <div v-if="saveSuccess" class="save-result">
-      <el-alert type="success" :closable="false" show-icon>
-        <template #title>文章已保存</template>
-        <template #default>
-          <div class="result-content">
-            <p>文章已保存到本地，您可以在文章列表中查看并发布到 IPFS。</p>
-            <el-button type="primary" size="small" @click="goToList">
-              查看文章列表
-            </el-button>
-          </div>
-        </template>
-      </el-alert>
     </div>
   </div>
 </template>
@@ -77,7 +70,7 @@ const router = useRouter();
 
 const editingRecord = ref<PublishRecord | null>(null);
 const saving = ref(false);
-const saveSuccess = ref(false);
+const publishing = ref(false);
 
 const form = ref({
   title: "",
@@ -127,7 +120,6 @@ function cancelEdit() {
   editingRecord.value = null;
   form.value.title = "";
   form.value.content = "";
-  saveSuccess.value = false;
   router.push("/list");
 }
 
@@ -135,11 +127,10 @@ function goToList() {
   router.push("/list");
 }
 
-async function handleSave() {
+async function handleSaveDraft() {
   if (!canSave.value) return;
 
   saving.value = true;
-  saveSuccess.value = false;
 
   try {
     const payload: any = {
@@ -155,23 +146,8 @@ async function handleSave() {
     const response = await chrome.runtime.sendMessage(payload);
 
     if (response.success) {
-      saveSuccess.value = true;
-      
-      // 如果是新建，清空表单
-      if (!editingRecord.value) {
-        form.value.title = "";
-        form.value.content = "";
-      }
-      
-      editingRecord.value = response.data;
-
-      // 更新记录数量
-      const recordsResponse = await chrome.runtime.sendMessage({ action: "getRecords" });
-      if (recordsResponse.success) {
-        emit("update-count", recordsResponse.data.length);
-      }
-
-      ElMessage.success("文章已保存");
+      // 直接跳转到列表
+      router.push("/list");
     } else {
       throw new Error(response.error);
     }
@@ -179,6 +155,60 @@ async function handleSave() {
     ElMessage.error("保存失败: " + error.message);
   } finally {
     saving.value = false;
+  }
+}
+
+async function handlePublish() {
+  if (!canSave.value) return;
+
+  // 检查是否是重新发布（之前已有 ipnsUrl）
+  const isRepublish = !!(editingRecord.value?.ipnsUrl);
+  
+  publishing.value = true;
+
+  try {
+    // 先保存
+    const savePayload: any = {
+      action: "save",
+      title: form.value.title.trim(),
+      content: form.value.content.trim(),
+    };
+
+    if (editingRecord.value) {
+      savePayload.id = editingRecord.value.id;
+    }
+
+    const saveResponse = await chrome.runtime.sendMessage(savePayload);
+
+    if (!saveResponse.success) {
+      throw new Error(saveResponse.error);
+    }
+
+    // 然后发布
+    const publishResponse = await chrome.runtime.sendMessage({
+      action: "publishArticle",
+      id: saveResponse.data.id,
+    });
+
+    if (publishResponse.success) {
+      if (isRepublish && publishResponse.data.ipnsUrl) {
+        // 重新发布，提示 IPNS 传播延迟
+        ElMessage({
+          type: 'success',
+          message: '文章已更新发布！永久链接内容将在约 5 分钟后更新',
+          duration: 5000,
+        });
+      } else {
+        ElMessage.success("文章发布成功！");
+      }
+      router.push("/list");
+    } else {
+      throw new Error(publishResponse.error);
+    }
+  } catch (error: any) {
+    ElMessage.error("发布失败: " + error.message);
+  } finally {
+    publishing.value = false;
   }
 }
 </script>
@@ -224,8 +254,8 @@ async function handleSave() {
   padding-top: 20px;
   border-top: 1px solid #e5e7eb;
 
-  .save-btn {
-    min-width: 140px;
+  .publish-btn {
+    min-width: 120px;
     background: @primary;
     border-color: @primary;
     color: @bg-dark;
@@ -238,19 +268,6 @@ async function handleSave() {
   }
 }
 
-.save-result {
-  margin-top: 20px;
-
-  .result-content {
-    margin-top: 8px;
-
-    p {
-      margin: 0 0 12px 0;
-      font-size: 13px;
-      color: #374151;
-    }
-  }
-}
 
 // 媒体查询适配
 @media (max-width: 1024px) {
@@ -286,7 +303,7 @@ async function handleSave() {
       width: 100%;
     }
 
-    .save-btn {
+    .publish-btn {
       min-width: auto;
     }
   }

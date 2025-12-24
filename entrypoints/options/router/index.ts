@@ -38,6 +38,12 @@ const router = createRouter({
 			meta: { title: '设置' },
 		},
 		{
+			path: '/topics',
+			name: 'topics',
+			component: () => import('../views/TopicsView.vue'),
+			meta: { title: '话题管理' },
+		},
+		{
 			path: '/help',
 			name: 'help',
 			component: () => import('../views/HelpView.vue'),

@@ -324,6 +324,98 @@ export function generateHtmlPage(title: string, content: string, createdAt?: num
 }
 
 /**
+ * 生成话题列表页 HTML
+ * @param records 文章记录列表
+ * @param gateway IPFS 网关地址
+ * @param topicName 话题名称
+ * @param topicDescription 话题描述
+ * @param topicAuthor 作者
+ */
+export function generateTopicListPage(
+	records: ListPageRecord[],
+	gateway: string,
+	topicName: string,
+	topicDescription?: string,
+	topicAuthor?: string,
+): string {
+	const formatDate = (timestamp: number) => {
+		return new Date(timestamp).toLocaleDateString('zh-CN', {
+			year: 'numeric',
+			month: 'long',
+			day: 'numeric',
+		});
+	};
+
+	const truncate = (text: string, length: number) => {
+		return text.length > length ? text.substring(0, length) + '...' : text;
+	};
+
+	const articleCards =
+		records.length > 0
+			? records
+					.map(
+						(record) => `
+      <a href="${gateway}${record.cid}" target="_blank" class="article-card">
+        <h2>${escapeHtml(record.title)}</h2>
+        <div class="meta">发布于 ${formatDate(record.createdAt)}</div>
+        <p class="preview">${escapeHtml(truncate(record.content, 150))}</p>
+      </a>
+    `,
+					)
+					.join('')
+			: '<div class="empty">还没有添加任何文章</div>';
+
+	const authorHtml = topicAuthor ? `<span class="author">作者：${escapeHtml(topicAuthor)}</span>` : '';
+	const descHtml = topicDescription ? `<p class="topic-desc">${escapeHtml(topicDescription)}</p>` : '';
+
+	return `<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${escapeHtml(topicName)} - IPFS Publisher</title>
+  <link rel="icon" type="image/png" href="https://github.com/anghunk/IPFS-Publisher/blob/main/public/icon/16.png?raw=true">
+  <style>${listPageStyles}
+  .topic-desc {
+    margin-top: 12px;
+    color: var(--text-muted);
+    font-size: 14px;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .author {
+    display: inline-block;
+    margin-top: 8px;
+    font-size: 13px;
+    color: var(--text-muted);
+    background: var(--bg-light);
+    padding: 4px 12px;
+    border-radius: 20px;
+  }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <div class="logo">📚</div>
+      <h1>${escapeHtml(topicName)}</h1>
+      ${descHtml}
+      ${authorHtml}
+      <p style="margin-top: 12px;">共 ${records.length} 篇文章 · 更新于 ${new Date().toLocaleDateString('zh-CN')}</p>
+    </header>
+    <div class="article-list">
+      ${articleCards}
+    </div>
+    <footer class="footer">
+      <p>Powered by <a href="https://ipfs.io" target="_blank">IPFS</a> · Published via <a href="https://github.com/anghunk/IPFS-Publisher" target="_blank">IPFS Publisher</a></p>
+    </footer>
+  </div>
+</body>
+</html>`;
+}
+
+/**
  * HTML 转义
  */
 function escapeHtml(text: string): string {

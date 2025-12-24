@@ -15,6 +15,7 @@
   "nav": {
     "editor": "文章发布",
     "list": "发布列表",
+    "topics": "话题管理",
     "settings": "设置",
     "ipfsConnected": "IPFS 已连接",
     "ipfsDisconnected": "IPFS 未连接",
@@ -115,5 +116,19 @@
     "step4Title": "验证连接",
     "step4Desc": "重启 IPFS Desktop 后，点击下方按钮验证连接是否成功。",
     "recheck": "重新检测"
+  },
+  "topics": {
+    "title": "话题管理",
+    "subtitle": "创建和管理文章话题列表，每个话题可独立发布到 IPNS",
+    "createTopic": "创建话题",
+    "createFirst": "创建第一个话题",
+    "emptyTitle": "还没有创建任何话题",
+    "topicName": "话题名称",
+    "topicDesc": "话题描述",
+    "author": "作者",
+    "manageArticles": "管理文章",
+    "publishToIpns": "发布到 IPNS",
+    "updatePublish": "更新发布",
+    "publishSuccess": "话题发布成功"
   }
 }
