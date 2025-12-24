@@ -1,6 +1,8 @@
+<img src="./public/icon/128.png" style="width:80px;">
+
 # IPFS Publisher
 
-[中文文档](./README.zh-CN.md) / [English document](./README.md)
+[中文文档](./README.zh-CN.md) / [English](./README.md)
 
 A simple browser extension to publish Markdown articles to IPFS network.
 
@@ -8,7 +10,8 @@ A simple browser extension to publish Markdown articles to IPFS network.
 
 [Github](https://github.com/anghunk/IPFS-Publisher)
 
-![](./public/image.jpg)
+![](./public/2.png)
+![](./public/1.png)
 
 ## Features
 
@@ -18,10 +21,7 @@ A simple browser extension to publish Markdown articles to IPFS network.
 - Custom IPFS gateway and local node API address support
 - Real-time Markdown preview
 - Multi-language support (Chinese/English), follows browser language by default
-
-### Roadmap
-
-- [ ] Create keys using IPNS, bind to unique URL
+- Create keys using IPNS, bind to unique URL
 
 ## Usage
 

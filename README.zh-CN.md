@@ -1,6 +1,8 @@
+<img src="./public/icon/128.png" style="width:80px;">
+
 # IPFS Publisher
 
-[中文文档](./README.zh-CN.md) / [English document](./README.md)
+[中文文档](./README.zh-CN.md) / [English](./README.md)
 
 一个简单的浏览器扩展，用于将 Markdown 文章发布到 IPFS 网络。
 
@@ -8,7 +10,8 @@
 
 [Github](https://github.com/anghunk/IPFS-Publisher)
 
-![](./public/image.zh.jpg)
+![](./public/2.png)
+![](./public/1.png)
 
 ## 功能
 
@@ -18,10 +21,7 @@
 - 支持自定义 IPFS 网关和本地节点 API 地址
 - Markdown 实时预览
 - 多语言支持（中文/English），默认跟随浏览器语言
-
-### 开发计划
-
-- [ ] 使用 IPNS 创建密钥，绑定唯一 URL
+- 使用 IPNS 创建密钥，绑定唯一 URL
 
 ## 使用方法
 
